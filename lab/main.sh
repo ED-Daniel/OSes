@@ -2,8 +2,14 @@ counter=0
 
 if [ -s "output.txt" ]
 then
-    echo "Deleting existing file"
+    echo 'Deleting existing output.txt file'
     rm -f "output.txt"
+fi
+
+if [[ ! -s 'writer.sh' || ! -x 'writer.sh' ]]
+then
+    echo 'File writer.sh does not exist or not executable - exitting...'
+    exit 1
 fi
 
 readfilename() {
@@ -39,7 +45,17 @@ sigtrap() {
         exit 1
     fi
 
-    echo '\nReceived CTRL+C: Re-enter your input!'
+    if [[ -z "$filename" ]]
+    then
+        echo '\nEnter file name: '
+    fi
+
+    if [[ -z "$pattern" && ! -z "$filename" ]]
+    then
+        echo '\nEnter searching pattern (q - quit): '
+    fi    
+
+    # echo '\nReceived CTRL+C: Re-enter your input!'
 }
 
 trap sigtrap SIGINT
@@ -55,6 +71,7 @@ do
     fi
 
     result=`grep "$pattern" "$filename"`
+
     (sh ./writer.sh "$result")
 
     filename=""
